@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/tailwind-config.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+  <title>Shop All — Maison Verre</title>
+  <meta name="description" content="Browse the full Maison Verre catalog of men's and women's clothing." />
+</head>
+<body>
+  <header class="sticky top-0 z-40 border-b border-ink/10 bg-ivory/90 backdrop-blur">
+    <div class="container-edit flex h-16 items-center justify-between lg:h-20">
+      <button id="mobile-menu-btn" class="lg:hidden" aria-label="Toggle menu">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <a href="index.html" class="font-display text-2xl tracking-wide text-ink lg:text-3xl">MAISON VERRE</a>
+
+      <nav class="hidden gap-8 lg:flex">
+        <a href="shop.html" class="hover-underline eyebrow !text-sm !normal-case !tracking-normal text-ink">Shop</a>
+        <a href="category.html?gender=women" class="hover-underline eyebrow !text-sm !normal-case !tracking-normal text-ink">Women</a>
+        <a href="category.html?gender=men" class="hover-underline eyebrow !text-sm !normal-case !tracking-normal text-ink">Men</a>
+        <a href="about.html" class="hover-underline eyebrow !text-sm !normal-case !tracking-normal text-ink">About</a>
+        <a href="contact.html" class="hover-underline eyebrow !text-sm !normal-case !tracking-normal text-ink">Contact</a>
+      </nav>
+
+      <div class="flex items-center gap-4 lg:gap-5">
+        <button id="search-toggle-btn" aria-label="Search" class="text-ink transition hover:text-gold">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <a href="wishlist.html" aria-label="Wishlist" class="hidden text-ink transition hover:text-gold sm:block">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7.5-4.8-10-9.3C.5 8.4 2.3 5 5.7 5c1.9 0 3.4 1 4.3 2.4C11 6 12.5 5 14.3 5c3.4 0 5.2 3.4 3.7 6.7C19.5 16.2 12 21 12 21z"/></svg>
+        </a>
+        <button id="cart-icon-btn" aria-label="Cart" class="relative text-ink transition hover:text-gold">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span id="cart-count-badge" style="display:none" class="absolute -right-2 -top-2 h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-medium text-ivory flex">0</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="search-panel" class="hidden border-t border-ink/10 bg-ivory">
+      <div class="container-edit py-4">
+        <div class="relative mx-auto max-w-xl">
+          <input id="search-input" type="text" placeholder="Search products, categories..." class="w-full border-b border-ink/20 bg-transparent py-2 font-body text-sm outline-none placeholder:text-charcoal/50 focus:border-gold" />
+          <div id="search-results" class="absolute left-0 right-0 top-full z-10 mt-2 divide-y divide-ink/5 border border-ink/10 bg-ivory shadow-lg empty:border-none empty:shadow-none"></div>
+        </div>
+      </div>
+    </div>
+
+    <nav id="mobile-nav" class="hidden flex-col gap-1 border-t border-ink/10 bg-ivory px-5 py-4 lg:hidden">
+      <a href="shop.html" class="py-2 text-sm uppercase tracking-wide text-ink">Shop</a>
+      <a href="category.html?gender=women" class="py-2 text-sm uppercase tracking-wide text-ink">Women</a>
+      <a href="category.html?gender=men" class="py-2 text-sm uppercase tracking-wide text-ink">Men</a>
+      <a href="about.html" class="py-2 text-sm uppercase tracking-wide text-ink">About</a>
+      <a href="contact.html" class="py-2 text-sm uppercase tracking-wide text-ink">Contact</a>
+      <a href="wishlist.html" class="py-2 text-sm uppercase tracking-wide text-ink">Wishlist</a>
+    </nav>
+  </header>
+
+  <main>
+
+    <div class="container-edit py-10 sm:py-14">
+      <div class="mb-8">
+        <p class="eyebrow mb-2">The full collection</p>
+        <h1 class="font-display text-4xl italic">Shop All</h1>
+      </div>
+      <div id="filter-bar"></div>
+      <p id="result-count" class="mb-6 text-xs text-charcoal/50"></p>
+      <div id="product-grid"></div>
+    </div>
+
+  </main>
+  <footer class="border-t border-ink/10 bg-ivory">
+    <div class="container-edit grid grid-cols-2 gap-10 py-16 sm:grid-cols-4">
+      <div class="col-span-2 sm:col-span-1">
+        <p class="mb-4 font-display text-2xl">MAISON VERRE</p>
+        <p class="text-sm text-charcoal/70">Considered clothing for men and women, designed to be worn for years, not seasons.</p>
+      </div>
+      <div>
+        <p class="mb-4 text-xs uppercase tracking-widest2 text-charcoal/60">Shop</p>
+        <ul class="flex flex-col gap-2.5">
+          <li><a href="shop.html" class="hover-underline text-sm text-ink">All Products</a></li>
+          <li><a href="category.html?gender=women" class="hover-underline text-sm text-ink">Women</a></li>
+          <li><a href="category.html?gender=men" class="hover-underline text-sm text-ink">Men</a></li>
+          <li><a href="shop.html?sale=true" class="hover-underline text-sm text-ink">Sale</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="mb-4 text-xs uppercase tracking-widest2 text-charcoal/60">Company</p>
+        <ul class="flex flex-col gap-2.5">
+          <li><a href="about.html" class="hover-underline text-sm text-ink">About Us</a></li>
+          <li><a href="contact.html" class="hover-underline text-sm text-ink">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="mb-4 text-xs uppercase tracking-widest2 text-charcoal/60">Support</p>
+        <ul class="flex flex-col gap-2.5">
+          <li><a href="contact.html" class="hover-underline text-sm text-ink">Shipping & Returns</a></li>
+          <li><a href="contact.html" class="hover-underline text-sm text-ink">Size Guide</a></li>
+          <li><a href="contact.html" class="hover-underline text-sm text-ink">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container-edit flex flex-col gap-3 border-t border-ink/10 py-6 text-xs text-charcoal/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>&copy; <span id="footer-year"></span> Maison Verre. All rights reserved.</p>
+      <p>Secure checkout &middot; Free returns within 30 days</p>
+    </div>
+  </footer>
+  <script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+  <div id="cart-overlay" class="overlay"></div>
+  <aside id="cart-drawer" class="drawer">
+    <div class="flex items-center justify-between border-b border-ink/10 p-5">
+      <h2 class="font-display text-xl italic">Your Bag</h2>
+      <button id="cart-close-btn" aria-label="Close cart">✕</button>
+    </div>
+    <div id="cart-drawer-body" class="flex-1 overflow-y-auto p-5"></div>
+    <div id="cart-drawer-footer" class="border-t border-ink/10 p-5"></div>
+  </aside>
+
+  <div id="quickview-root" class="modal-wrap bg-ink/50" onclick="closeQuickView()"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/wishlist.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/quickview.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/filters.js"></script>
+  <script>
+    initFilterablePage(document.getElementById('product-grid'), document.getElementById('result-count'));
+  </script>
+</body>
+</html>
