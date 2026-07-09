@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0e0c0a">
+  <meta name="description" content="Satyabhama — Tradition Reimagined. Handpicked ethnic and fusion wear for the modern woman.">
+  <title>Satyabhama — Shop</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/mobile.css">
+
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+
+  <!-- App scripts (order matters) -->
+  <script src="js/config.js" defer></script>
+  <script src="js/supabase.js" defer></script>
+  <script src="js/cart.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/products.js" defer></script>
+  <script src="js/ui.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+
+  <!-- ═══ OVERLAY ═══ -->
+  <div id="overlay" onclick="UI.closeAll()"></div>
+
+  <!-- ═══ MOBILE DRAWER ═══ -->
+  <nav class="drawer-nav" id="drawerNav">
+    <div class="drawer-nav-head">
+      <span class="logo">Satyabhama<span class="accent-dot">.</span></span>
+      <button class="sb-close" onclick="UI.closeDrawer()" aria-label="Close menu">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Shop</a></li>
+      <li><a href="#">Ethnic Wear</a></li>
+      <li><a href="#">Western</a></li>
+      <li><a href="#">Fusion</a></li>
+      <li><a href="#">Accessories</a></li>
+      <li><a href="#" class="sale-link">Sale</a></li>
+    </ul>
+    <div class="drawer-nav-footer">Crafted with tradition · Est. 2024</div>
+  </nav>
+
+  <!-- ═══ MAIN NAV ═══ -->
+  <nav id="mainNav">
+    <button class="hamburger-btn" onclick="UI.openDrawer()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-logo">Satyabhama<span class="accent-dot">.</span></div>
+    <ul class="nav-desktop-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Shop</a></li>
+      <li><a href="#">Ethnic Wear</a></li>
+      <li><a href="#">Western</a></li>
+      <li><a href="#">Accessories</a></li>
+      <li><a href="#" class="sale-link">Sale</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="nav-btn" aria-label="Search" onclick="UI.showToast('Search coming soon')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="nav-btn" aria-label="Account" onclick="UI.openAccount()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </button>
+      <button class="nav-btn" aria-label="Wishlist">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span class="badge" id="wishBadge">0</span>
+      </button>
+      <button class="nav-btn" aria-label="Cart" onclick="UI.openCart()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="badge" id="cartBadge">0</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-motif" aria-hidden="true">🪷</div>
+    <div class="hero-content">
+      <div class="breadcrumb"><a href="#">Home</a><span>›</span><span>Shop</span></div>
+      <h1>Tradition<br><em>Reimagined</em></h1>
+      <p>Handpicked ethnic &amp; fusion wear for the modern woman</p>
+      <a href="#" class="hero-cta">Shop the Collection →</a>
+    </div>
+  </section>
+
+  <!-- ═══ FILTER BAR ═══ -->
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-scroll">
+      <span class="filter-label">Filter:</span>
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="Ethnic">Ethnic</button>
+      <button class="filter-chip" data-filter="Western">Western</button>
+      <button class="filter-chip" data-filter="Fusion">Fusion</button>
+      <button class="filter-chip" data-filter="Accessories">Accessories</button>
+      <button class="filter-chip accent-chip" data-filter="sale">🔥 Sale</button>
+    </div>
+    <div class="sort-row">
+      <span id="productCount">Loading…</span>
+      <div class="sort-controls">
+        <select class="sort-select" id="sortSelect">
+          <option value="default">Default</option>
+          <option value="price_asc">Price ↑</option>
+          <option value="price_desc">Price ↓</option>
+          <option value="newest">Newest</option>
+          <option value="name_asc">A–Z</option>
+        </select>
+        <div class="grid-toggle">
+          <button class="gtbtn" title="2 columns" onclick="Products.setGrid(2)">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+          </button>
+          <button class="gtbtn active" title="3 columns" onclick="Products.setGrid(3)">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="3" width="6" height="8" rx="1"/><rect x="9" y="3" width="6" height="8" rx="1"/><rect x="16" y="3" width="6" height="8" rx="1"/><rect x="2" y="13" width="6" height="8" rx="1"/><rect x="9" y="13" width="6" height="8" rx="1"/><rect x="16" y="13" width="6" height="8" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PRODUCTS ═══ -->
+  <main>
+    <div class="product-grid" id="productGrid"></div>
+    <div class="pagination" id="pagination"></div>
+  </main>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h2>Satyabhama<span class="accent-dot">.</span></h2>
+        <p>Celebrating the elegance of Indian fashion, curated for the modern woman who walks between worlds.</p>
+        <div class="newsletter-row">
+          <input type="email" placeholder="Your email for offers">
+          <button>Subscribe</button>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <ul>
+          <li><a href="#">Ethnic Wear</a></li>
+          <li><a href="#">Western</a></li>
+          <li><a href="#">Fusion</a></li>
+          <li><a href="#">Accessories</a></li>
+          <li><a href="#">New Arrivals</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Customer Care</h4>
+        <ul>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">Help &amp; FAQs</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Track Order</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Policies</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+          <li><a href="#">Shipping</a></li>
+          <li><a href="#">Refund Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Follow Us</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">Pinterest</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>
+        <div class="footer-logo-sm">Satyabhama<span class="accent-dot">.</span></div>
+        <div class="footer-legal">©2025 Satyabhama. All rights reserved.</div>
+      </div>
+      <div class="footer-bottom-right">
+        <div class="pay-icons">
+          <div class="pay-icon">VISA</div>
+          <div class="pay-icon">MC</div>
+          <div class="pay-icon">UPI</div>
+          <div class="pay-icon">AMEX</div>
+        </div>
+        <div class="lang-btns">
+          <button class="lang-btn">EN ▾</button>
+          <button class="lang-btn">₹ INR ▾</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══ CART SIDEBAR ═══ -->
+  <aside class="sidebar" id="cartSidebar" aria-label="Shopping cart">
+    <div class="sb-head">
+      <h2>Your Bag <span id="cartCountLabel" class="sb-count"></span></h2>
+      <button class="sb-close" onclick="UI.closeCart()" aria-label="Close cart">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sb-body" id="cartBody"></div>
+    <div class="sb-foot" id="cartFoot" style="display:none">
+      <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0</span></div>
+      <div class="cart-summary-row"><span>Shipping</span><span class="free-tag">Free</span></div>
+      <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹0</span></div>
+      <div class="promo-row">
+        <input class="promo-input" type="text" placeholder="Promo code">
+        <button class="promo-apply">Apply</button>
+      </div>
+      <button class="btn-primary" onclick="UI.showToast('Checkout coming soon!')">Checkout →</button>
+      <button class="btn-sec" onclick="UI.closeCart()">Continue Shopping</button>
+      <p class="cart-note">🔒 Secure checkout · Free returns · COD available</p>
+    </div>
+  </aside>
+
+  <!-- ═══ ACCOUNT SIDEBAR ═══ -->
+  <aside class="sidebar" id="accountSidebar" aria-label="Account">
+    <div class="sb-head">
+      <h2 id="acctTitle">My Account</h2>
+      <button class="sb-close" onclick="UI.closeAccount()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <!-- Auth tabs -->
+    <div id="authFlow">
+      <div class="acct-tabs">
+        <button class="acct-tab active" id="tabLogin" onclick="Auth.switchTab('login')">Sign In</button>
+        <button class="acct-tab" id="tabReg" onclick="Auth.switchTab('register')">Register</button>
+      </div>
+      <div class="acct-panel active" id="panelLogin">
+        <div class="fgroup"><label>Email</label><input class="finput" id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
+        <div class="fgroup"><label>Password</label><input class="finput" id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password"><div class="fhint"><a href="#" class="accent-link">Forgot password?</a></div></div>
+        <button class="btn-primary" onclick="Auth.login()">Sign In</button>
+        <div class="divider">or</div>
+        <div class="social-btns">
+          <button class="social-btn" onclick="Auth.googleLogin()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+      </div>
+      <div class="acct-panel" id="panelReg">
+        <div class="fgroup"><label>Full Name</label><input class="finput" id="regName" type="text" placeholder="Your name" autocomplete="name"></div>
+        <div class="fgroup"><label>Email</label><input class="finput" id="regEmail" type="email" placeholder="you@example.com" autocomplete="email"></div>
+        <div class="fgroup"><label>Password</label><input class="finput" id="regPass" type="password" placeholder="Min. 8 characters" autocomplete="new-password"><div class="fhint">At least 8 characters</div></div>
+        <button class="btn-primary" onclick="Auth.register()">Create Account</button>
+        <div class="divider">or</div>
+        <div class="social-btns">
+          <button class="social-btn" onclick="Auth.googleLogin()">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Sign up with Google
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- Logged-in profile -->
+    <div class="profile-wrap" id="profileWrap">
+      <div class="sb-body" style="padding:24px 20px">
+        <div class="profile-avatar" id="profileAvatar">S</div>
+        <div class="profile-name" id="profileName">Guest</div>
+        <div class="profile-email" id="profileEmail"></div>
+        <div class="stat-grid">
+          <div class="stat-card"><strong>0</strong><span>Orders</span></div>
+          <div class="stat-card"><strong>0</strong><span>Wishlist</span></div>
+          <div class="stat-card"><strong>Silver</strong><span>Tier</span></div>
+        </div>
+        <ul class="profile-menu">
+          <li><a href="#">My Orders <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a></li>
+          <li><a href="#">Addresses <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a></li>
+          <li><a href="#">Payment Methods <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a></li>
+          <li><a href="#">Wishlist <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></a></li>
+        </ul>
+        <button class="btn-logout" onclick="Auth.logout()">Sign Out</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══ PRODUCT DETAIL MODAL ═══ -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="productModal">
+      <div class="modal-gallery" id="modalGallery">
+        <div class="modal-main-emoji" id="modalEmoji">🪷</div>
+        <div class="modal-thumbs" id="modalThumbs"></div>
+      </div>
+      <div class="modal-info">
+        <button class="modal-close" onclick="UI.closeModal()">
+          <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div id="modalBadge"></div>
+        <h2 class="modal-name" id="modalName">Product Name</h2>
+        <div class="modal-rating"><span class="stars">★★★★★</span><span id="modalReviews">4.8 (124 reviews)</span></div>
+        <div class="modal-price" id="modalPrice"></div>
+        <div class="sec-label">Color</div>
+        <div class="modal-colors" id="modalColors"></div>
+        <div class="sec-label">Size <a href="#" class="size-guide-link">Size guide</a></div>
+        <div class="modal-sizes" id="modalSizes"></div>
+        <div class="modal-actions">
+          <button class="btn-primary" onclick="Cart.addFromModal()">Add to Bag</button>
+          <button class="modal-wish-btn" onclick="UI.toggleModalWishlist(this)">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </button>
+        </div>
+        <p class="modal-desc" id="modalDesc"></p>
+        <div class="accordion-item">
+          <button class="acc-trigger" onclick="UI.toggleAcc(this)">Materials &amp; Care <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-body">Premium quality fabric. Machine wash cold, tumble dry low. Do not bleach. Made ethically in India.</div>
+        </div>
+        <div class="accordion-item">
+          <button class="acc-trigger" onclick="UI.toggleAcc(this)">Shipping &amp; Returns <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-body">Free shipping on orders above ₹999. Delivery in 3–7 business days. 30-day free returns. COD available across India.</div>
+        </div>
+        <div class="accordion-item">
+          <button class="acc-trigger" onclick="UI.toggleAcc(this)">Sizing Info <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="acc-body">True to size. Model is 5'6" wearing size M. Refer to our size guide for measurements. When in doubt, size up.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST ═══ -->
+  <div id="toast">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+    <span id="toastMsg">Done</span>
+  </div>
+
+</body>
+</html>
