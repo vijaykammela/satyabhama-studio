@@ -1,135 +1,167 @@
-/* ═══════════════════════════════════════
-   js/cart.js — Cart state & rendering
-═══════════════════════════════════════ */
-const Cart = (() => {
-  let items = [];   /* [{ key, product, size, qty }] */
+// Cart state, persisted to localStorage under CART_KEY. Any page that
+// includes data.js + cart.js gets a working cart automatically: this file
+// renders the header cart count and the slide-over drawer on load.
 
-  /* ── Add to cart ── */
-  function add(product, size) {
-    const key      = `${product.id}__${size}`;
-    const existing = items.find(i => i.key === key);
-    if (existing) {
-      existing.qty++;
-    } else {
-      items.push({ key, product, size, qty: 1 });
-    }
-    updateBadge();
-    UI.showToast(`${product.name} added to bag`);
+const CART_KEY = "maison-verre-cart";
+
+function getCart() {
+  try {
+    return JSON.parse(localStorage.getItem(CART_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCart(lines) {
+  localStorage.setItem(CART_KEY, JSON.stringify(lines));
+  renderHeaderCartCount();
+  renderCartDrawer();
+}
+
+function addToCart({ productId, size, color, quantity }) {
+  const lines = getCart();
+  const existing = lines.find(
+    (l) => l.productId === productId && l.size === size && l.color === color
+  );
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    lines.push({ productId, size, color, quantity });
+  }
+  saveCart(lines);
+  openCart();
+}
+
+function updateCartQuantity(productId, size, color, quantity) {
+  let lines = getCart();
+  lines = lines
+    .map((l) =>
+      l.productId === productId && l.size === size && l.color === color
+        ? { ...l, quantity }
+        : l
+    )
+    .filter((l) => l.quantity > 0);
+  saveCart(lines);
+}
+
+function removeCartLine(productId, size, color) {
+  const lines = getCart().filter(
+    (l) => !(l.productId === productId && l.size === size && l.color === color)
+  );
+  saveCart(lines);
+}
+
+function clearCart() {
+  saveCart([]);
+}
+
+function cartItemCount() {
+  return getCart().reduce((sum, l) => sum + l.quantity, 0);
+}
+
+function cartSubtotal() {
+  return getCart().reduce((sum, l) => {
+    const product = getProductBySlugById(l.productId);
+    return sum + (product ? product.price * l.quantity : 0);
+  }, 0);
+}
+
+// products are looked up by id in the cart, but PRODUCTS is keyed by slug
+// lookups elsewhere — this small helper bridges the two.
+function getProductBySlugById(productId) {
+  return PRODUCTS.find((p) => p.id === productId);
+}
+
+function formatPrice(n) {
+  return `₹${Math.round(n).toLocaleString("en-IN")}`;
+}
+
+// --- Drawer open/close --------------------------------------------------
+function openCart() {
+  const overlay = document.getElementById("cart-overlay");
+  const drawer = document.getElementById("cart-drawer");
+  if (!overlay || !drawer) return;
+  overlay.classList.add("open");
+  drawer.classList.add("open");
+}
+function closeCart() {
+  const overlay = document.getElementById("cart-overlay");
+  const drawer = document.getElementById("cart-drawer");
+  if (!overlay || !drawer) return;
+  overlay.classList.remove("open");
+  drawer.classList.remove("open");
+}
+
+function renderHeaderCartCount() {
+  const badge = document.getElementById("cart-count-badge");
+  if (!badge) return;
+  const count = cartItemCount();
+  badge.textContent = count;
+  badge.style.display = count > 0 ? "flex" : "none";
+}
+
+function renderCartDrawer() {
+  const container = document.getElementById("cart-drawer-body");
+  const footer = document.getElementById("cart-drawer-footer");
+  if (!container) return;
+  const lines = getCart();
+
+  if (lines.length === 0) {
+    container.innerHTML = `<p class="mt-10 text-center text-sm text-charcoal/60">Your bag is empty. Time to fix that.</p>`;
+    if (footer) footer.innerHTML = "";
+    return;
   }
 
-  /* ── Quick-add (picks second size as default) ── */
-  function quickAdd(productId) {
-    const p = Products.getCurrentProduct
-      ? null
-      : null;
-
-    /* Look up product from all loaded products */
-    const allProducts = (() => {
-      try { return document.querySelector('.pcard') ? _getAllProducts() : DEMO_PRODUCTS; }
-      catch { return DEMO_PRODUCTS; }
-    })();
-
-    /* We expose getAllById via Products module via window global */
-    const product = window._allProducts?.find(x => x.id === productId);
-    if (!product) return;
-    const size = product.sizes?.[1] || product.sizes?.[0] || 'M';
-    add(product, size);
-  }
-
-  /* ── Change quantity ── */
-  function changeQty(key, delta) {
-    const item = items.find(i => i.key === key);
-    if (!item) return;
-    item.qty += delta;
-    if (item.qty <= 0) {
-      items = items.filter(i => i.key !== key);
-    }
-    updateBadge();
-    render();
-  }
-
-  /* ── Remove item ── */
-  function remove(key) {
-    items = items.filter(i => i.key !== key);
-    updateBadge();
-    render();
-  }
-
-  /* ── Add from modal ── */
-  function addFromModal() {
-    const product = Products.getCurrentProduct();
-    if (!product) return;
-
-    let size = Products.getSelectedSize();
-    if (!size) {
-      const firstChip = document.querySelector('.sz-chip:not(.oos)');
-      if (firstChip) firstChip.click();
-      size = Products.getSelectedSize();
-    }
-    if (!size && product.sizes?.length) size = product.sizes[0];
-    if (!size) size = 'M';
-
-    add(product, size);
-    UI.closeModal();
-    UI.openCart();
-  }
-
-  /* ── Update nav badge ── */
-  function updateBadge() {
-    const total = items.reduce((s, i) => s + i.qty, 0);
-    const badge = document.getElementById('cartBadge');
-    badge.textContent = total;
-    badge.classList.toggle('vis', total > 0);
-    document.getElementById('cartCountLabel').textContent = total ? `(${total})` : '';
-  }
-
-  /* ── Render cart body ── */
-  function render() {
-    const body = document.getElementById('cartBody');
-    const foot = document.getElementById('cartFoot');
-
-    if (items.length === 0) {
-      body.innerHTML = `
-        <div class="cart-empty-state">
-          <svg width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          <h3 style="font-size:16px;font-weight:500">Your bag is empty</h3>
-          <p>Discover our curated collection</p>
-          <button class="btn-sec" style="max-width:180px;margin-top:8px" onclick="UI.closeCart()">Shop Now</button>
-        </div>`;
-      foot.style.display = 'none';
-      return;
-    }
-
-    const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
-
-    body.innerHTML = items.map(item => `
-      <div class="cart-item">
-        <div class="ci-img" style="background:${item.product.bg}">
-          ${item.product.emoji || '🪷'}
-        </div>
-        <div class="ci-info">
-          <div class="ci-name">${item.product.name}</div>
-          <div class="ci-meta">Size: ${item.size}</div>
-          <div class="ci-row">
-            <div class="qty-ctrl">
-              <button onclick="Cart.changeQty('${item.key}', -1)">−</button>
-              <span>${item.qty}</span>
-              <button onclick="Cart.changeQty('${item.key}', 1)">+</button>
-            </div>
-            <div class="ci-price">₹${(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+  container.innerHTML = lines
+    .map((line) => {
+      const product = getProductBySlugById(line.productId);
+      if (!product) return "";
+      return `
+        <li class="flex gap-4">
+          <div class="relative h-24 w-20 flex-shrink-0 overflow-hidden bg-sand/30">
+            <img src="${product.images[0]}" alt="${product.name}" class="h-full w-full object-cover" />
           </div>
-          <button class="ci-remove" onclick="Cart.remove('${item.key}')">Remove</button>
-        </div>
-      </div>`).join('');
+          <div class="flex flex-1 flex-col justify-between">
+            <div>
+              <p class="text-sm text-ink">${product.name}</p>
+              <p class="text-xs text-charcoal/60">${line.color} · ${line.size}</p>
+            </div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 border border-ink/15 px-2 py-1">
+                <button aria-label="Decrease quantity" onclick="updateCartQuantity('${line.productId}','${line.size}','${line.color}', ${line.quantity - 1})">−</button>
+                <span class="w-4 text-center text-sm font-mono">${line.quantity}</span>
+                <button aria-label="Increase quantity" onclick="updateCartQuantity('${line.productId}','${line.size}','${line.color}', ${line.quantity + 1})">+</button>
+              </div>
+              <span class="font-mono text-sm">${formatPrice(product.price * line.quantity)}</span>
+            </div>
+          </div>
+          <button aria-label="Remove item" onclick="removeCartLine('${line.productId}','${line.size}','${line.color}')" class="self-start text-charcoal/40 hover:text-ink">✕</button>
+        </li>`;
+    })
+    .join("");
 
-    foot.style.display = 'block';
-    document.getElementById('cartSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-    document.getElementById('cartTotal').textContent    = `₹${subtotal.toLocaleString('en-IN')}`;
+  container.innerHTML = `<ul class="flex flex-col gap-6">${container.innerHTML}</ul>`;
+
+  if (footer) {
+    const subtotal = cartSubtotal();
+    footer.innerHTML = `
+      <div class="mb-4 flex items-center justify-between text-sm">
+        <span class="text-charcoal/70">Subtotal</span>
+        <span class="font-mono text-base">${formatPrice(subtotal)}</span>
+      </div>
+      <a href="checkout.html" class="block w-full bg-ink py-3 text-center text-xs uppercase tracking-widest2 text-ivory transition-colors hover:bg-gold">Checkout</a>
+      <a href="cart.html" class="hover-underline mt-3 block text-center text-xs text-charcoal/60">View full cart</a>
+    `;
   }
+}
 
-  return { add, quickAdd, changeQty, remove, addFromModal, render };
-})();
+document.addEventListener("DOMContentLoaded", () => {
+  renderHeaderCartCount();
+  renderCartDrawer();
+  const cartBtn = document.getElementById("cart-icon-btn");
+  const closeBtn = document.getElementById("cart-close-btn");
+  const overlay = document.getElementById("cart-overlay");
+  if (cartBtn) cartBtn.addEventListener("click", openCart);
+  if (closeBtn) closeBtn.addEventListener("click", closeCart);
+  if (overlay) overlay.addEventListener("click", closeCart);
+});
