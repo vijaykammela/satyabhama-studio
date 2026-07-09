@@ -9,6 +9,12 @@
 --   4. Paste this entire file and click "Run"
 -- ═══════════════════════════════════════════════════════
 
+-- Optional reset when rebuilding from scratch
+-- DROP TABLE IF EXISTS order_items CASCADE;
+-- DROP TABLE IF EXISTS wishlist CASCADE;
+-- DROP TABLE IF EXISTS orders CASCADE;
+-- DROP TABLE IF EXISTS profiles CASCADE;
+-- DROP TABLE IF EXISTS products CASCADE;
 
 -- ─────────────────────────────────────────
 -- 1. PRODUCTS
@@ -23,21 +29,21 @@ CREATE TABLE IF NOT EXISTS products (
   badge       text         CHECK (badge IN ('New', 'Sale', 'Limited') OR badge IS NULL),
   emoji       text         NOT NULL DEFAULT '🪷',
   bg_color    text         NOT NULL DEFAULT '#6A1B9A',
-  colors      jsonb        NOT NULL DEFAULT '[]',
+  colors      jsonb        NOT NULL DEFAULT '[]'::jsonb,
   -- e.g. ["#6A1B9A", "#D4A017", "#C62828"]
-  sizes       jsonb        NOT NULL DEFAULT '["S","M","L","XL"]',
+  sizes       jsonb        NOT NULL DEFAULT '["S","M","L","XL"]'::jsonb,
   -- e.g. ["XS","S","M","L","XL"] or ["36","37","38"] or ["One Size"]
   description text,
   image_url   text,
   -- Optional: URL to a real product image (Supabase Storage or CDN)
   in_stock    boolean      NOT NULL DEFAULT true,
-  stock_qty   integer               DEFAULT 100,
+  stock_qty   integer      NOT NULL DEFAULT 100,
   created_at  timestamptz  NOT NULL DEFAULT now(),
   updated_at  timestamptz  NOT NULL DEFAULT now()
 );
 
 -- Auto-update updated_at on every change
-CREATE OR REPLACE FUNCTION update_updated_at()
+CREATE OR REPLACE FUNCTION public.update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
   NEW.updated_at = now();
@@ -45,10 +51,10 @@ BEGIN
 END;
 $$ language plpgsql;
 
+DROP TRIGGER IF EXISTS products_updated_at ON products;
 CREATE TRIGGER products_updated_at
   BEFORE UPDATE ON products
-  FOR EACH ROW EXECUTE PROCEDURE update_updated_at();
-
+  FOR EACH ROW EXECUTE PROCEDURE public.update_updated_at();
 
 -- ─────────────────────────────────────────
 -- 2. PROFILES (extends auth.users)
@@ -61,8 +67,13 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at  timestamptz  NOT NULL DEFAULT now()
 );
 
+DROP TRIGGER IF EXISTS profiles_updated_at ON profiles;
+CREATE TRIGGER profiles_updated_at
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW EXECUTE PROCEDURE public.update_updated_at();
+
 -- Auto-create profile when a user registers
-CREATE OR REPLACE FUNCTION handle_new_user()
+CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, full_name, avatar_url)
@@ -72,6 +83,7 @@ BEGIN
     NEW.raw_user_meta_data ->> 'avatar_url'
   )
   ON CONFLICT (id) DO NOTHING;
+
   RETURN NEW;
 END;
 $$ language plpgsql SECURITY DEFINER;
@@ -79,33 +91,32 @@ $$ language plpgsql SECURITY DEFINER;
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE PROCEDURE handle_new_user();
-
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- ─────────────────────────────────────────
 -- 3. ORDERS
 -- ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS orders (
-  id          bigserial    PRIMARY KEY,
-  user_id     uuid         NOT NULL REFERENCES auth.users(id),
-  status      text         NOT NULL DEFAULT 'pending'
-                           CHECK (status IN ('pending','confirmed','shipped','delivered','cancelled')),
-  total       integer      NOT NULL CHECK (total >= 0),
-  address     jsonb,
+  id             bigserial    PRIMARY KEY,
+  user_id        uuid         NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  status         text         NOT NULL DEFAULT 'pending'
+                               CHECK (status IN ('pending','confirmed','shipped','delivered','cancelled')),
+  total          integer      NOT NULL CHECK (total >= 0),
+  address        jsonb,
   -- e.g. { "line1": "12 MG Road", "city": "Bengaluru", "pincode": "560001", "state": "Karnataka" }
-  payment_method text      DEFAULT 'cod',
+  payment_method text         DEFAULT 'cod',
   -- cod | upi | card | netbanking
-  payment_ref text,
+  payment_ref    text,
   -- Razorpay order id or UPI ref
-  notes       text,
-  created_at  timestamptz  NOT NULL DEFAULT now(),
-  updated_at  timestamptz  NOT NULL DEFAULT now()
+  notes          text,
+  created_at     timestamptz  NOT NULL DEFAULT now(),
+  updated_at     timestamptz  NOT NULL DEFAULT now()
 );
 
+DROP TRIGGER IF EXISTS orders_updated_at ON orders;
 CREATE TRIGGER orders_updated_at
   BEFORE UPDATE ON orders
-  FOR EACH ROW EXECUTE PROCEDURE update_updated_at();
-
+  FOR EACH ROW EXECUTE PROCEDURE public.update_updated_at();
 
 -- ─────────────────────────────────────────
 -- 4. ORDER ITEMS
@@ -113,13 +124,12 @@ CREATE TRIGGER orders_updated_at
 CREATE TABLE IF NOT EXISTS order_items (
   id          bigserial    PRIMARY KEY,
   order_id    bigint       NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id  bigint       NOT NULL REFERENCES products(id),
+  product_id  bigint       NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
   size        text         NOT NULL,
   qty         integer      NOT NULL CHECK (qty > 0),
   price       integer      NOT NULL CHECK (price > 0)
   -- Snapshot of price at time of order
 );
-
 
 -- ─────────────────────────────────────────
 -- 5. WISHLIST
@@ -131,7 +141,6 @@ CREATE TABLE IF NOT EXISTS wishlist (
   created_at  timestamptz  NOT NULL DEFAULT now(),
   UNIQUE (user_id, product_id)
 );
-
 
 -- ─────────────────────────────────────────
 -- 6. INDEXES (for fast queries)
