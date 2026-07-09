@@ -1,0 +1,27 @@
+/* ═══════════════════════════════════════
+   css/tokens.css — Design tokens
+   Change colours here to retheme the whole site
+═══════════════════════════════════════ */
+:root {
+  /* Colours */
+  --bg:       #FAF8F5;
+  --white:    #ffffff;
+  --ink:      #0e0c0a;
+  --mid:      #6b6561;
+  --border:   #e5e0d8;
+  --panel:    #F2EFE9;
+  --accent:   #8B2FC9;   /* deep purple – sari-inspired */
+  --accent2:  #D4A017;   /* gold */
+
+  /* Layout */
+  --sidebar-w: min(420px, 100vw);
+  --nav-h:     56px;
+  --r:         10px;
+  --shadow:    0 8px 32px rgba(14,12,10,.10);
+}
+
+/* Accent helpers */
+.accent-dot  { color: var(--accent2); }
+.sale-link   { color: var(--accent) !important; }
+.accent-link { color: var(--accent); }
+.free-tag    { color: #4CAF50; }
