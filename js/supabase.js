@@ -3,30 +3,24 @@
 ═══════════════════════════════════════ */
 const DB = (() => {
   let client = null;
-  const configured = CONFIG.SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co';
 
-  function init() {
-    if (!configured) {
-      console.info('Satyabhama: Supabase not configured — using demo data.');
-      Products.load(DEMO_PRODUCTS);
-      return;
-    }
-    try {
-      client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON);
+  const configured =
+    CONFIG.SUPABASE_URL &&
+    CONFIG.SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co' &&
+    CONFIG.SUPABASE_ANON &&
+    CONFIG.SUPABASE_ANON !== 'YOUR_SUPABASE_ANON_KEY';
 
-      /* Listen for auth state changes */
-      client.auth.onAuthStateChange((_event, session) => {
-        Auth.handleSession(session);
-      });
-
-      fetchProducts();
-    } catch (err) {
-      console.error('Supabase init failed:', err);
-      Products.load(DEMO_PRODUCTS);
+  function showDbError(message) {
+    const grid = document.getElementById('productGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div style="padding:16px;border:1px solid #f5c2c7;background:#fff3f4;color:#842029;border-radius:12px;">
+          ${message}
+        </div>
+      `;
     }
   }
 
-  /* ── Fetch all products ── */
   async function fetchProducts() {
     try {
       const { data, error } = await client
@@ -37,31 +31,54 @@ const DB = (() => {
 
       if (error) throw error;
 
-      /* Normalise jsonb fields */
-      const normalised = data.map(p => ({
+      const normalised = (data || []).map((p) => ({
         ...p,
-        bg:     p.bg_color || '#6A1B9A',
-        colors: Array.isArray(p.colors) ? p.colors : (JSON.parse(p.colors || '[]')),
-        sizes:  Array.isArray(p.sizes)  ? p.sizes  : (JSON.parse(p.sizes  || '[]')),
+        category: (p.category || '').toLowerCase(),
+        bg: p.bg_color || '#6A1B9A',
+        colors: Array.isArray(p.colors) ? p.colors : JSON.parse(p.colors || '[]'),
+        sizes: Array.isArray(p.sizes) ? p.sizes : JSON.parse(p.sizes || '[]'),
       }));
 
       Products.load(normalised);
     } catch (err) {
-      console.error('Products fetch failed:', err.message);
-      Products.load(DEMO_PRODUCTS);
+      console.error('Products fetch failed:', err);
+      showDbError(`Failed to load products: ${err.message}`);
     }
   }
 
-  /* ── Auth helpers ── */
+  function init() {
+    if (!configured) {
+      console.error('Satyabhama: Supabase not configured.');
+      showDbError('Supabase is not configured. Update js/config.js with your project URL and anon key.');
+      return;
+    }
+
+    try {
+      client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON);
+
+      client.auth.onAuthStateChange((_event, session) => {
+        if (window.Auth && typeof Auth.handleSession === 'function') {
+          Auth.handleSession(session);
+        }
+      });
+
+      fetchProducts();
+    } catch (err) {
+      console.error('Supabase init failed:', err);
+      showDbError(`Supabase init failed: ${err.message}`);
+    }
+  }
+
   async function signInWithEmail(email, password) {
-    if (!client) return { error: { message: 'Demo mode' } };
+    if (!client) return { error: { message: 'Supabase not initialized' } };
     return client.auth.signInWithPassword({ email, password });
   }
 
   async function signUpWithEmail(email, password, fullName) {
-    if (!client) return { error: { message: 'Demo mode' } };
+    if (!client) return { error: { message: 'Supabase not initialized' } };
     return client.auth.signUp({
-      email, password,
+      email,
+      password,
       options: { data: { full_name: fullName } },
     });
   }
@@ -76,5 +93,12 @@ const DB = (() => {
     await client.auth.signOut();
   }
 
-  return { init, signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, isConfigured: configured };
+  return {
+    init,
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithGoogle,
+    signOut,
+    isConfigured: configured,
+  };
 })();
