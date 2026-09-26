@@ -5,8 +5,8 @@
    Dashboard → Project Settings → API
 ═══════════════════════════════════════ */
 const CONFIG = {
-  SUPABASE_URL:  'https://YOUR_PROJECT_ID.supabase.co',
-  SUPABASE_ANON: 'YOUR_ANON_PUBLIC_KEY',
+  SUPABASE_URL:  'https://uslxliqyxkjiccwwkdac.supabase.co',
+  SUPABASE_ANON: 'sb_publishable_eGn6bZru4CB0X3SxD75jqw_cUP_uQ_6',
   PAGE_SIZE: 12,
 };
 
