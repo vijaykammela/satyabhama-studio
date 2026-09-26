@@ -189,11 +189,9 @@ const Products = (() => {
       `<div class="sz-chip" onclick="Products.selectSize(this, '${s}')">${s}</div>`
     ).join('');
 
-    document.getElementById('modalThumbs').innerHTML =
-      [p.emoji || '🪷', '📸', '🔍'].map((e, i) =>
-        `<div class="mthumb ${i === 0 ? 'active' : ''}"
-              onclick="Products.selectThumb(this, '${e}')">${e}</div>`
-      ).join('');
+    document.getElementById('modalThumbs').innerHTML = p.image_url
+      ? `<div class="mthumb active"><img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" referrerpolicy="no-referrer"></div>`
+      : `<div class="mthumb active">${p.emoji || '🪷'}</div>`;
 
     document.getElementById('overlay').classList.add('show');
     document.getElementById('modalBackdrop').style.pointerEvents = 'all';
