@@ -81,7 +81,9 @@ const Products = (() => {
       return `
         <article class="pcard" onclick="Products.openModal(${p.id})">
           <div class="pcard-img">
-            <div class="pcard-visual" style="background:${p.bg}">${p.emoji || '🪷'}</div>
+            ${p.image_url
+              ? `<img class="pcard-visual pcard-product-img" src="${p.image_url}" alt="${p.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="pcard-visual" style="background:${p.bg};display:none">${p.emoji || '🪷'}</div>`
+              : `<div class="pcard-visual" style="background:${p.bg}">${p.emoji || '🪷'}</div>`}
             ${p.badge ? `<div class="pcard-badge ${badgeCls}">${p.badge}</div>` : ''}
             <button class="pcard-wish"
               onclick="event.stopPropagation(); UI.toggleWish(this)"
@@ -158,7 +160,12 @@ const Products = (() => {
     selectedSize = null;
 
     document.getElementById('modalGallery').style.background = p.bg;
-    document.getElementById('modalEmoji').textContent  = p.emoji || '🪷';
+    const modalVisual = document.getElementById('modalEmoji');
+    if (p.image_url) {
+      modalVisual.innerHTML = `<img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;display:block" referrerpolicy="no-referrer">`;
+    } else {
+      modalVisual.textContent = p.emoji || '🪷';
+    }
     document.getElementById('modalName').textContent   = p.name;
     document.getElementById('modalDesc').textContent   = p.description || '';
 
