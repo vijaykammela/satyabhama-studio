@@ -35,3 +35,10 @@ input, select { font-family: inherit; }
   clip: rect(0,0,0,0);
   overflow: hidden;
 }
+
+
+/* Global typography: keep one font family across the entire storefront */
+html, body, button, input, select, textarea,
+h1, h2, h3, h4, h5, h6, p, span, a, label, strong, em, div {
+  font-family: 'DM Sans', sans-serif !important;
+}
