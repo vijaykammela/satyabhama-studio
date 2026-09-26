@@ -109,7 +109,9 @@ const Cart = (() => {
     body.innerHTML = items.map(item => `
       <div class="cart-item">
         <div class="ci-img" style="background:${item.product.bg}">
-          ${item.product.emoji || '🪷'}
+          ${item.product.image_url
+            ? `<img src="${item.product.image_url}" alt="${item.product.name}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block" referrerpolicy="no-referrer">`
+            : (item.product.emoji || '🪷')}
         </div>
         <div class="ci-info">
           <div class="ci-name">${item.product.name}</div>
