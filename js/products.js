@@ -100,8 +100,8 @@ const Products = (() => {
           <div class="pcard-info">
             <div class="pcard-name">${p.name}</div>
             <div class="pcard-price">
-              ₹${p.price.toLocaleString('en-IN')}
-              ${p.old_price ? `<span class="old">₹${p.old_price.toLocaleString('en-IN')}</span>` : ''}
+              INR ${p.price.toLocaleString('en-IN')}
+              ${p.old_price ? `<span class="old">INR ${p.old_price.toLocaleString('en-IN')}</span>` : ''}
             </div>
             <div class="pcard-swatches">
               ${colors.map((c, i) =>
@@ -225,8 +225,8 @@ const Products = (() => {
       ? `<div class="modal-badge-pill ${badgeCls}">${p.badge}</div>` : '';
 
     document.getElementById('modalPrice').innerHTML =
-      `₹${p.price.toLocaleString('en-IN')}` +
-      (p.old_price ? `<span class="old">₹${p.old_price.toLocaleString('en-IN')}</span>` : '');
+      `INR ${p.price.toLocaleString('en-IN')}` +
+      (p.old_price ? `<span class="old">INR ${p.old_price.toLocaleString('en-IN')}</span>` : '');
 
     const colors = Array.isArray(p.colors) ? p.colors : [];
     document.getElementById('modalColors').innerHTML = colors.map((c, i) =>

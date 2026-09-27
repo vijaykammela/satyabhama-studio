@@ -122,15 +122,15 @@ const Cart = (() => {
               <span>${item.qty}</span>
               <button onclick="Cart.changeQty('${item.key}', 1)">+</button>
             </div>
-            <div class="ci-price">₹${(item.product.price * item.qty).toLocaleString('en-IN')}</div>
+            <div class="ci-price">INR ${(item.product.price * item.qty).toLocaleString('en-IN')}</div>
           </div>
           <button class="ci-remove" onclick="Cart.remove('${item.key}')">Remove</button>
         </div>
       </div>`).join('');
 
     foot.style.display = 'block';
-    document.getElementById('cartSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
-    document.getElementById('cartTotal').textContent    = `₹${subtotal.toLocaleString('en-IN')}`;
+    document.getElementById('cartSubtotal').textContent = `INR ${subtotal.toLocaleString('en-IN')}`;
+    document.getElementById('cartTotal').textContent    = `INR ${subtotal.toLocaleString('en-IN')}`;
   }
 
   return { add, quickAdd, changeQty, remove, addFromModal, render };
