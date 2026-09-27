@@ -153,6 +153,60 @@ const Products = (() => {
   }
 
   /* ── Product Modal ── */
+  function getGalleryImages(product) {
+    const gallery = Array.isArray(product.image_urls) ? product.image_urls : [];
+    const cover = typeof product.image_url === 'string' ? product.image_url.trim() : '';
+    return [...new Set([cover, ...gallery]
+      .filter(url => typeof url === 'string' && url.trim())
+      .map(url => url.trim()))];
+  }
+
+  function setModalImage(url, product = currentModalProduct) {
+    const media = document.getElementById('modalEmoji');
+    media.replaceChildren();
+
+    if (!url) {
+      media.textContent = product?.emoji || '🪷';
+      return;
+    }
+
+    const image = document.createElement('img');
+    image.src = url;
+    image.alt = product?.name || 'Product';
+    image.referrerPolicy = 'no-referrer';
+    image.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block';
+    media.append(image);
+  }
+
+  function renderModalThumbs(images, product) {
+    const thumbs = document.getElementById('modalThumbs');
+    thumbs.replaceChildren();
+
+    if (!images.length) {
+      const fallback = document.createElement('div');
+      fallback.className = 'mthumb active';
+      fallback.textContent = product.emoji || '🪷';
+      thumbs.append(fallback);
+      return;
+    }
+
+    images.forEach((url, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `mthumb${index === 0 ? ' active' : ''}`;
+      button.setAttribute('aria-label', `View image ${index + 1}`);
+      button.addEventListener('click', () => selectThumb(button, url));
+
+      const image = document.createElement('img');
+      image.src = url;
+      image.alt = '';
+      image.referrerPolicy = 'no-referrer';
+      image.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:inherit';
+      button.append(image);
+      thumbs.append(button);
+    });
+  }
+
   function openModal(id) {
     const p = all.find(x => x.id === id);
     if (!p) return;
@@ -160,12 +214,8 @@ const Products = (() => {
     selectedSize = null;
 
     document.getElementById('modalGallery').style.background = p.bg;
-    const modalVisual = document.getElementById('modalEmoji');
-    if (p.image_url) {
-      modalVisual.innerHTML = `<img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;display:block" referrerpolicy="no-referrer">`;
-    } else {
-      modalVisual.textContent = p.emoji || '🪷';
-    }
+    const images = getGalleryImages(p);
+    setModalImage(images[0], p);
     document.getElementById('modalName').textContent   = p.name;
     document.getElementById('modalDesc').textContent   = p.description || '';
 
@@ -189,9 +239,7 @@ const Products = (() => {
       `<div class="sz-chip" onclick="Products.selectSize(this, '${s}')">${s}</div>`
     ).join('');
 
-    document.getElementById('modalThumbs').innerHTML = p.image_url
-      ? `<div class="mthumb active"><img src="${p.image_url}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit" referrerpolicy="no-referrer"></div>`
-      : `<div class="mthumb active">${p.emoji || '🪷'}</div>`;
+    renderModalThumbs(images, p);
 
     document.getElementById('overlay').classList.add('show');
     document.getElementById('modalBackdrop').style.pointerEvents = 'all';
@@ -209,10 +257,10 @@ const Products = (() => {
     selectedSize = size;
   }
 
-  function selectThumb(el, emoji) {
+  function selectThumb(el, imageUrl) {
     document.querySelectorAll('.mthumb').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    document.getElementById('modalEmoji').textContent = emoji;
+    setModalImage(imageUrl);
   }
 
   function getCurrentProduct() { return currentModalProduct; }

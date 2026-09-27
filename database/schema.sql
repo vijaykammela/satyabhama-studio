@@ -29,12 +29,18 @@ CREATE TABLE IF NOT EXISTS products (
   -- e.g. ["XS","S","M","L","XL"] or ["36","37","38"] or ["One Size"]
   description text,
   image_url   text,
-  -- Optional: URL to a real product image (Supabase Storage or CDN)
+  -- Cover image URL (Supabase Storage or CDN)
+  image_urls  jsonb        NOT NULL DEFAULT '[]'::jsonb,
+  -- Ordered gallery image URLs; image_url remains the cover/fallback
   in_stock    boolean      NOT NULL DEFAULT true,
   stock_qty   integer               DEFAULT 100,
   created_at  timestamptz  NOT NULL DEFAULT now(),
   updated_at  timestamptz  NOT NULL DEFAULT now()
 );
+
+-- Keep existing projects in sync with the gallery field.
+ALTER TABLE products
+  ADD COLUMN IF NOT EXISTS image_urls jsonb NOT NULL DEFAULT '[]'::jsonb;
 
 -- Auto-update updated_at on every change
 CREATE OR REPLACE FUNCTION update_updated_at()

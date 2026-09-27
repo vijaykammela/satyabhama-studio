@@ -43,6 +43,9 @@ const DB = (() => {
         bg:     p.bg_color || '#6A1B9A',
         colors: Array.isArray(p.colors) ? p.colors : (JSON.parse(p.colors || '[]')),
         sizes:  Array.isArray(p.sizes)  ? p.sizes  : (JSON.parse(p.sizes  || '[]')),
+        image_urls: Array.isArray(p.image_urls)
+          ? p.image_urls
+          : (typeof p.image_urls === 'string' ? JSON.parse(p.image_urls || '[]') : []),
       }));
 
       Products.load(normalised);
