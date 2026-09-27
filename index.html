@@ -88,8 +88,9 @@
 
   <!-- ═══ HERO ═══ -->
   <section class="hero">
+    <img class="hero-cover" src="assets/header.webp"
+      alt="Woman wearing a maroon silk saree" fetchpriority="high">
     <div class="hero-pattern"></div>
-    <div class="hero-motif" aria-hidden="true">🪷</div>
     <div class="hero-content">
       <div class="breadcrumb"><a href="#">Home</a><span>›</span><span>Shop</span></div>
       <h1>Tradition<br><em>Reimagined</em></h1>
@@ -295,8 +296,14 @@
   <div class="modal-backdrop" id="modalBackdrop">
     <div class="modal" id="productModal">
       <div class="modal-gallery" id="modalGallery">
+        <button type="button" class="modal-gallery-nav prev" id="modalPrevImage"
+          onclick="Products.navigateModalGallery(-1)" aria-label="Previous product image">‹</button>
         <div class="modal-main-emoji" id="modalEmoji">🪷</div>
+        <button type="button" class="modal-gallery-nav next" id="modalNextImage"
+          onclick="Products.navigateModalGallery(1)" aria-label="Next product image">›</button>
         <div class="modal-thumbs" id="modalThumbs"></div>
+        <div class="modal-image-counter" id="modalImageCounter" aria-live="polite"></div>
+        <div class="modal-swipe-hint" id="modalSwipeHint">Swipe to view</div>
       </div>
       <div class="modal-info">
         <button class="modal-close" onclick="UI.closeModal()">

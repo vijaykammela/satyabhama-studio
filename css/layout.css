@@ -95,17 +95,22 @@
 /* ── HERO ── */
 .hero {
   position: relative;
-  background: linear-gradient(135deg, #1a0a2e 0%, #2d0855 50%, #4a1480 100%);
+  background: #2d1b18;
   overflow: hidden;
   padding: 40px 20px 36px;
-  min-height: 200px;
+  min-height: 320px;
   display: flex; flex-direction: column; justify-content: flex-end;
+}
+.hero-cover {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: 66% top;
 }
 .hero-pattern {
   position: absolute; inset: 0;
   background-image:
-    radial-gradient(circle at 20% 30%, rgba(212,160,23,.15) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(139,47,201,.2) 0%, transparent 40%);
+    linear-gradient(90deg, rgba(25,10,12,.88) 0%, rgba(25,10,12,.58) 46%, rgba(25,10,12,.08) 78%),
+    linear-gradient(0deg, rgba(14,12,10,.38) 0%, transparent 48%);
 }
 .hero-motif {
   position: absolute; right: -20px; top: 0; bottom: 0;
@@ -251,7 +256,7 @@ footer {
   #mainNav { padding: 0 40px; height: 62px; }
   .nav-desktop-links { display: flex; }
   .hamburger-btn { display: none; }
-  .hero { padding: 56px 40px 48px; min-height: 240px; }
+  .hero { padding: 56px 40px 48px; min-height: 380px; }
   .filter-bar { top: 62px; }
   .filter-scroll { padding: 11px 32px; }
   .sort-row { padding: 9px 32px; }

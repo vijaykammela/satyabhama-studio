@@ -9,6 +9,8 @@ const Products = (() => {
   let currentPage  = 1;
   let currentModalProduct = null;
   let selectedSize = null;
+  let currentGalleryImages = [];
+  let currentImageIndex = 0;
 
   /* ── Load products (called by DB module) ── */
   function load(data) {
@@ -194,8 +196,9 @@ const Products = (() => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `mthumb${index === 0 ? ' active' : ''}`;
+      button.dataset.imageIndex = index;
       button.setAttribute('aria-label', `View image ${index + 1}`);
-      button.addEventListener('click', () => selectThumb(button, url));
+      button.addEventListener('click', () => selectThumb(button, url, index));
 
       const image = document.createElement('img');
       image.src = url;
@@ -207,6 +210,57 @@ const Products = (() => {
     });
   }
 
+  function updateGalleryControls() {
+    const hasMultiple = currentGalleryImages.length > 1;
+    document.getElementById('modalPrevImage').hidden = !hasMultiple;
+    document.getElementById('modalNextImage').hidden = !hasMultiple;
+    document.getElementById('modalSwipeHint').hidden = !hasMultiple;
+
+    const counter = document.getElementById('modalImageCounter');
+    counter.hidden = !hasMultiple;
+    counter.textContent = hasMultiple
+      ? `${currentImageIndex + 1} / ${currentGalleryImages.length}`
+      : '';
+  }
+
+  function showGalleryImage(index) {
+    if (!currentGalleryImages.length) return;
+    currentImageIndex = (index + currentGalleryImages.length) % currentGalleryImages.length;
+    setModalImage(currentGalleryImages[currentImageIndex]);
+    document.querySelectorAll('.mthumb').forEach(thumb => {
+      thumb.classList.toggle('active', Number(thumb.dataset.imageIndex) === currentImageIndex);
+    });
+    updateGalleryControls();
+  }
+
+  function navigateModalGallery(direction) {
+    if (currentGalleryImages.length < 2) return;
+    showGalleryImage(currentImageIndex + direction);
+  }
+
+  function initGalleryGestures() {
+    const gallery = document.getElementById('modalGallery');
+    if (gallery.dataset.gesturesReady) return;
+    gallery.dataset.gesturesReady = 'true';
+
+    let startX = 0;
+    let startY = 0;
+    gallery.addEventListener('touchstart', event => {
+      const touch = event.changedTouches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+    }, { passive: true });
+
+    gallery.addEventListener('touchend', event => {
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+      if (Math.abs(deltaX) >= 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+        navigateModalGallery(deltaX < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  }
+
   function openModal(id) {
     const p = all.find(x => x.id === id);
     if (!p) return;
@@ -215,6 +269,8 @@ const Products = (() => {
 
     document.getElementById('modalGallery').style.background = p.bg;
     const images = getGalleryImages(p);
+    currentGalleryImages = images;
+    currentImageIndex = 0;
     setModalImage(images[0], p);
     document.getElementById('modalName').textContent   = p.name;
     document.getElementById('modalDesc').textContent   = p.description || '';
@@ -240,6 +296,8 @@ const Products = (() => {
     ).join('');
 
     renderModalThumbs(images, p);
+    updateGalleryControls();
+    initGalleryGestures();
 
     document.getElementById('overlay').classList.add('show');
     document.getElementById('modalBackdrop').style.pointerEvents = 'all';
@@ -257,10 +315,12 @@ const Products = (() => {
     selectedSize = size;
   }
 
-  function selectThumb(el, imageUrl) {
+  function selectThumb(el, imageUrl, index) {
     document.querySelectorAll('.mthumb').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+    currentImageIndex = index;
     setModalImage(imageUrl);
+    updateGalleryControls();
   }
 
   function getCurrentProduct() { return currentModalProduct; }
@@ -272,7 +332,7 @@ const Products = (() => {
 
   return {
     load, renderSkeletons, goPage, setGrid,
-    openModal, selectModalColor, selectSize, selectThumb,
+    openModal, selectModalColor, selectSize, selectThumb, navigateModalGallery,
     getCurrentProduct, getSelectedSize,
     setFilter, setSort,
   };
