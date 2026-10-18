@@ -71,7 +71,12 @@ const DB = (() => {
 
   async function signInWithGoogle() {
     if (!client) return;
-    await client.auth.signInWithOAuth({ provider: 'google' });
+    await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
   }
 
   async function signOut() {
