@@ -4,7 +4,6 @@
 const DB = (() => {
   let client = null;
   const configured = CONFIG.SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co';
-  // Production OAuth callback — do not use the local development origin here.
   const AUTH_REDIRECT_URL = 'https://satyabhama-studio.vercel.app/';
 
   function init() {
@@ -71,13 +70,24 @@ const DB = (() => {
     });
   }
 
+  /* Legacy OAuth flow retained for fallback; Google button now uses ID-token sign-in. */
   async function signInWithGoogle() {
     if (!client) return;
-    await client.auth.signInWithOAuth({
+    return client.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: AUTH_REDIRECT_URL,
       },
+    });
+  }
+
+  /* Direct Google Identity Services flow — no browser redirect, so localhost cannot be used. */
+  async function signInWithGoogleCredential(idToken, nonce) {
+    if (!client) return { error: { message: 'Demo mode' } };
+    return client.auth.signInWithIdToken({
+      provider: 'google',
+      token: idToken,
+      nonce,
     });
   }
 
@@ -86,5 +96,13 @@ const DB = (() => {
     await client.auth.signOut();
   }
 
-  return { init, signInWithEmail, signUpWithEmail, signInWithGoogle, signOut, isConfigured: configured };
+  return {
+    init,
+    signInWithEmail,
+    signUpWithEmail,
+    signInWithGoogle,
+    signInWithGoogleCredential,
+    signOut,
+    isConfigured: configured,
+  };
 })();
