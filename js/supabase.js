@@ -4,6 +4,7 @@
 const DB = (() => {
   let client = null;
   const configured = CONFIG.SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co';
+  const AUTH_REDIRECT_URL = 'https://satyabhama-studio.vercel.app/';
 
   function init() {
     if (!configured) {
@@ -74,7 +75,7 @@ const DB = (() => {
     await client.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: AUTH_REDIRECT_URL,
       },
     });
   }
