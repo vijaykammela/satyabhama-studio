@@ -4,6 +4,7 @@
 const DB = (() => {
   let client = null;
   const configured = CONFIG.SUPABASE_URL !== 'https://YOUR_PROJECT_ID.supabase.co';
+  // Production OAuth callback — do not use the local development origin here.
   const AUTH_REDIRECT_URL = 'https://satyabhama-studio.vercel.app/';
 
   function init() {
