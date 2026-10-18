@@ -182,13 +182,10 @@ const Auth = (() => {
       return;
     }
 
-    if (!googleReady) {
-      await ensureGoogleButton();
-    }
-
-    if (window.google?.accounts?.id) {
-      google.accounts.id.prompt();
-    }
+    // Only prepare the embedded Google button.
+    // Do not call google.accounts.id.prompt(), which creates the
+    // "Continue as ..." account chooser at the top of the login panel.
+    if (!googleReady) await ensureGoogleButton();
   }
 
   /* ── Sign out ── */
